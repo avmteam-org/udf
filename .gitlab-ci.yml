@@ -1,0 +1,35 @@
+image: jangrewe/gitlab-ci-android
+
+stages:
+- check
+- deploy
+
+before_script:
+  - export GRADLE_USER_HOME=$(pwd)/.gradle
+  - chmod +x ./gradlew
+
+Analysis:
+  stage: check
+  script:
+    - ./gradlew detekt
+
+Test:
+  stage: check
+  script:
+    - ./gradlew test
+  artifacts:
+    reports:
+      junit: ./build/test-results/**/TEST-*.xml
+
+PublishLocalMaven:
+  stage: deploy
+  script:
+    - ./gradlew publish
+  only:
+    - master
+
+PublishManualTmp:
+  stage: deploy
+  script:
+    - ./gradlew publish
+  when: manual
